@@ -1,8 +1,6 @@
 name: publish
 
-on:
-  release:
-    types: [published]
+on: push
 
 jobs:
   release:
@@ -26,18 +24,10 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: yarn
 
-      - name: Lint
-        run: yarn lint
-
-      - name: Test
-        run: yarn test
-
-      - name: Coverage
-        run: yarn codecov
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - name: Bump version
+        run: node .github/scripts/publish.js ${{ github.ref }}
 
       - name: Publish new release
-        run: npm publish --access public
+        run: npm publish --access public --tag ${{ github.ref }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
